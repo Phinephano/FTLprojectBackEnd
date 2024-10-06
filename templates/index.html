@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landslide Prediction</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+    <div class="main">
+        <div class="container">
+            <h2>Landslide Susceptibility Prediction</h2>
+            <div class="form-container">
+                <form action="/predict" method="post">
+                    <div class="formbold-input-flex">
+                        <!-- Aspect -->
+                        <div class="form-item">
+                            <label for="Aspect" class="formbold-form-label">Aspect:</label>
+                            <input type="number" class="formbold-form-input" id="Aspect" placeholder="degrees: 0 to 360" name="Aspect" step="0.01" required>
+                        </div>
+
+                        <!-- Curvature -->
+                        <div class="form-item">
+                            <label for="Curvature" class="formbold-form-label">Curvature:</label>
+                            <input type="number" class="formbold-form-input" id="Curvature" placeholder="-10 to 10" name="Curvature" step="0.01" required>
+                        </div>
+
+                        <!-- Earthquake -->
+                        <div class="form-item">
+                            <label for="Earthquake" class="formbold-form-label">Earthquake:</label>
+                            <input type="number" class="formbold-form-input" id="Earthquake" placeholder="0 to 10" name="Earthquake" step="0.01" required>
+                        </div>
+
+                        <!-- Elevation -->
+                        <div class="form-item">
+                            <label for="Elevation" class="formbold-form-label">Elevation:</label>
+                            <input type="number" class="formbold-form-input" id="Elevation" placeholder="0 to 8,848+" name="Elevation" step="0.01" required>
+                        </div>
+
+                        <!-- Flow -->
+                        <div class="form-item">
+                            <label for="Flow" class="formbold-form-label">Flow:</label>
+                            <input type="number" class="formbold-form-input" id="Flow" placeholder="1 to 5" name="Flow" step="0.01" required>
+                        </div>
+
+                        <!-- Lithology -->
+                        <div class="form-item">
+                            <label for="Lithology" class="formbold-form-label">Lithology:</label>
+                            <input type="number" class="formbold-form-input" id="Lithology" placeholder="1 to N" name="Lithology" step="0.01" required>
+                        </div>
+
+                        <!-- NDVI -->
+                        <div class="form-item">
+                            <label for="NDVI" class="formbold-form-label">NDVI:</label>
+                            <input type="number" class="formbold-form-input" id="NDVI" placeholder="-1 to 1" name="NDVI" step="0.01" required>
+                        </div>
+
+                        <!-- NDWI -->
+                        <div class="form-item">
+                            <label for="NDWI" class="formbold-form-label">NDWI:</label>
+                            <input type="number" class="formbold-form-input" id="NDWI" placeholder="-1 to 1" name="NDWI" step="0.01" required>
+                        </div>
+
+                        <!-- Plan -->
+                        <div class="form-item">
+                            <label for="Plan" class="formbold-form-label">Plan:</label>
+                            <input type="number" class="formbold-form-input" id="Plan" placeholder="-10 to 10" name="Plan" step="0.01" required>
+                        </div>
+
+                        <!-- Precipitation -->
+                        <div class="form-item">
+                            <label for="Precipitation" class="formbold-form-label">Precipitation:</label>
+                            <input type="number" class="formbold-form-input" id="Precipitation" placeholder="0 to 5000+" name="Precipitation" step="0.01" required>
+                        </div>
+
+                        <!-- Profile -->
+                        <div class="form-item">
+                            <label for="Profile" class="formbold-form-label">Profile:</label>
+                            <input type="number" class="formbold-form-input" id="Profile" placeholder="-10 to 10" name="Profile" step="0.01" required>
+                        </div>
+
+                        <!-- Slope -->
+                        <div class="form-item">
+                            <label for="Slope" class="formbold-form-label">Slope:</label>
+                            <input type="number" class="formbold-form-input" id="Slope" placeholder="0 to 90" name="Slope" step="0.01" required>
+                        </div>
+                    </div>
+                    <button type="submit">Predict</button>
+                </form>
+            </div>
+            
+            <!-- Section to show prediction result and suggestions -->
+            <div id="prediction-section" class="prediction-result">
+                <h2>Prediction Result:</h2>
+                <p id="prediction-text">{{ prediction_text }}</p>
+
+                <h2>Suggestions:</h2>
+                <ul id="suggestion-list">
+                    {% for suggestion in suggestions %}
+                    <li>{{ suggestion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to control visibility of the prediction section -->
+    <script>
+
+const form = document.getElementById('prediction-form');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = {
+        Aspect: document.getElementById('Aspect').value,
+        Curvature: document.getElementById('Curvature').value,
+        Earthquake: document.getElementById('Earthquake').value,
+        Elevation: document.getElementById('Elevation').value,
+        Flow: document.getElementById('Flow').value,
+        Lithology: document.getElementById('Lithology').value,
+        NDVI: document.getElementById('NDVI').value,
+        NDWI: document.getElementById('NDWI').value,
+        Plan: document.getElementById('Plan').value,
+        Precipitation: document.getElementById('Precipitation').value,
+        Profile: document.getElementById('Profile').value,
+        Slope: document.getElementById('Slope').value
+    };
+
+    try {
+        const response = await fetch('https://<your-render-backend-url>/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        // Display the prediction and suggestions
+        document.getElementById('prediction-text').innerText = result.prediction_text;
+        document.getElementById('suggestions').innerHTML = result.suggestions.map(s => `<li>${s}</li>`).join('');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+
+        const predictionText = "{{ prediction_text }}";
+        if (predictionText) {
+            document.getElementById('prediction-section').classList.add('visible');
+        }
+    </script>
+</body>
+</html>
